@@ -1,0 +1,62 @@
+# 结构概览
+version:
+  type: enum   # string,enum,mixed
+  rule: [ "1.0" ]
+  displayName: 配置描述版本号
+  description: 配置描述文件版本号,目前只有 1.0
+  required: true
+  message: # 错误提示的文本设定
+    required: "{$s} 必须 {$s}"
+    length: 长度必须为 {$lenght}
+
+triggers:
+  type: enum
+  rule: [ 'commitMessage','push','pr' ]
+  displayName: 触发规则
+  description: 触发规则
+  required: true
+
+name:
+  type: string
+  rule:
+    length: '^\d{1,10}$'
+  displayName: 流水线唯一ID
+  description: 流水线唯一ID的描述
+  required: true
+
+displayName:
+  type: string
+  rule:
+    length: '^\d{1,10}$'
+  displayName: 流水线名称
+  description: 流水线名称的描述
+  required: true
+
+job:
+  type: regexp
+  rule:
+    length: '^\d{1,10}$'
+  displayName: 配置描述版本号
+  description: 配置描述文件版本号,目前只有 1.0
+  required: true
+
+jobs:
+  type: list
+  rule:
+    mix: 0
+    max: 100
+  displayName: 配置描述版本号
+  description: 配置描述文件版本号,目前只有 1.0
+  required: true
+
+
+stages:
+  type: mixed
+  rule:
+    - string:
+        length: '^\d{1,10}$'
+    - list:
+        min: 0
+        max: 100
+  description: 流水线阶段的描述
+  required: true
