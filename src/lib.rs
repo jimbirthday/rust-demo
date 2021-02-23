@@ -2,16 +2,17 @@ extern crate serde_yaml;
 extern crate yaml_rust;
 
 use std::{collections::HashMap, result::Result};
-mod model;
+mod dag;
+mod yaml;
 
-pub fn parse_yml(s: &str) -> Result<model::DAG, serde_yaml::Error> {
-    let res: model::DAG = serde_yaml::from_str(s)?;
+pub fn parse_yml(s: &str) -> Result<dag::DAG, serde_yaml::Error> {
+    let res: dag::DAG = serde_yaml::from_str(s)?;
     Ok(res)
 }
 
 #[allow(dead_code)]
-pub fn parse_yml_to_value(v: serde_yaml::Value) -> Result<model::Detail, serde_yaml::Error> {
-    let res: model::Detail = serde_yaml::from_value(v)?;
+pub fn parse_yml_to_value(v: serde_yaml::Value) -> Result<dag::Detail, serde_yaml::Error> {
+    let res: dag::Detail = serde_yaml::from_value(v)?;
     Ok(res)
 }
 
@@ -49,13 +50,35 @@ pub fn get_dag(s: &str) {
 
 #[test]
 fn test_yaml() {
-    let s =  "# 结构概览\nversion:\n  type: enum   # string,enum,mixed\n  rule: [ \"1.0\" ]\n  displayName: 配置描述版本号\n  description: 配置描述文件版本号,目前只有 1.0\n  required: true\n\ntriggers:\n  type: enum\n  rule: [ 'commitMessage','push','pr' ]\n  displayName: 触发规则\n  description: 触发规则\n  required: true\n\nname:\n  type: string\n  rule:\n    length: '^\\d{1,10}$'\n  displayName: 流水线唯一ID\n  description: 流水线唯一ID的描述\n  required: true\n\ndisplayName:\n  type: string\n  rule:\n    length: '^\\d{1,10}$'\n  displayName: 流水线名称\n  description: 流水线名称的描述\n  required: true\n\njob:\n  type: regexp\n  rule:\n    length: '^\\d{1,10}$'\n  displayName: 配置描述版本号\n  description: 配置描述文件版本号,目前只有 1.0\n  required: true\n\njobs:\n  type: list\n  rule:\n    mix: 0\n    max: 100\n  displayName: 配置描述版本号\n  description: 配置描述文件版本号,目前只有 1.0\n  required: true\n  message: # 错误提示的文本设定\n    require: \"{$s} 必须 {$s}\"\n    length: 长度必须为 {$lenght}\n\nstages:\n  type: mixed\n  rule:\n    - string:\n        length: '^\\d{1,10}$'\n    - list:\n        mix: 0\n        max: 100\n  description: 流水线阶段的描述\n  required: true";
-    match model::DAG::from_str(s) {
+    let d_c =  "# 结构概览\nversion:\n  type: enum   # string,enum,mixed\n  rule: [ \"1.0\" ]\n  displayName: 配置描述版本号\n  description: 配置描述文件版本号,目前只有 1.0\n  required: true\n\ntriggers:\n  type: enum\n  rule: [ 'commitMessage','push','pr' ]\n  displayName: 触发规则\n  description: 触发规则\n  required: true\n\nname:\n  type: string\n  rule:\n    length: '^\\d{1,10}$'\n  displayName: 流水线唯一ID\n  description: 流水线唯一ID的描述\n  required: true\n\ndisplayName:\n  type: string\n  rule:\n    length: '^\\d{1,10}$'\n  displayName: 流水线名称\n  description: 流水线名称的描述\n  required: true\n\njob:\n  type: regexp\n  rule:\n    length: '^\\d{1,10}$'\n  displayName: 配置描述版本号\n  description: 配置描述文件版本号,目前只有 1.0\n  required: true\n\njobs:\n  type: list\n  rule:\n    mix: 0\n    max: 100\n  displayName: 配置描述版本号\n  description: 配置描述文件版本号,目前只有 1.0\n  required: true\n  message: # 错误提示的文本设定\n    require: \"{$s} 必须 {$s}\"\n    length: 长度必须为 {$lenght}\n\nstages:\n  type: mixed\n  rule:\n    - string:\n        length: '^\\d{1,10}$'\n    - list:\n        mix: 0\n        max: 100\n  description: 流水线阶段的描述\n  required: true";
+    let d = match dag::DAG::from_str(d_c) {
         Err(e) => {
             println!("err :{:?}", e);
+            return;
         }
         Ok(t) => {
             println!("dag :{:?}", t);
+            t
         }
     };
+
+    let y_c = 	"version: 1.0\nname: go-test-copy\ndisplayName:\ntriggers:\n  push:\n    branches:\n      - master\nvariables:\n  WORLD: world_ymlsd\nstages:\n  - stage: maven@1\n    displayName: 第一个stage\n    name: stage1\n    jobs:\n      - job:\n        displayName: 第一个job1\n        name: job1\n        environments:\n           WORLD: world\n           HELLO: helloaaa\n        commands:\n          - echo ${{HELLO}} &&\n            echo ${{WORLD}}\n          -\n            - echo group1  --- Test1\n            - echo group1  --- Test2\n            - echo group1  --- Test3\n          - group2:\n              - echo group2  --- Test1\n              - echo group2  --- Test2\n              - echo group2  --- Test3\n              - errGroup:\n                  -echo errGroup  --- Test1\n                  -echo errGroup  --- Test2\n          - echo Hello Wolrd 3\n          - sleep 10s\n        artifacts:\n          - name: mv1\n            scope: archive\n            repository: http://maven/last\n            path: /v1.0/java.jar\n          - name: zip1\n            scope: pipieline\n            path: /v.10/a.zip\n          - name: var1\n            scope: variable\n            value: a\n        dependArtifacts:\n          - type: archive\n            repository: http://maven/last\n            name: mv1\n            target: /data\n            isForce: true\n          - type: pipieline\n            sourceStage: stage1\n            sourceJob: job1\n            name: zip1\n            target: /data\n            isForce: true\n          - type: variable\n            value: a\n            isForce: true\n  - stage: maven@1\n    displayName: 第一个stage\n    name: stage1\n    jobs:\n      - job:\n        displayName: 第一个job1\n        name: job1\n        environments:\n           WORLD: world\n           HELLO: helloaaa\n        commands:\n          - echo ${{HELLO}} &&\n            echo ${{WORLD}}\n          -\n            - echo group1  --- Test1\n            - echo group1  --- Test2\n            - echo group1  --- Test3\n          - group2:\n              - echo group2  --- Test1\n              - echo group2  --- Test2\n              - echo group2  --- Test3\n              - errGroup:\n                  -echo errGroup  --- Test1\n                  -echo errGroup  --- Test2\n          - echo Hello Wolrd 3\n          - sleep 10s\n        artifacts:\n          - name: mv1\n            scope: archive\n            repository: http://maven/last\n            path: /v1.0/java.jar\n          - name: zip1\n            scope: pipieline\n            path: /v.10/a.zip\n          - name: var1\n            scope: variable\n            value: a\n        dependArtifacts:\n          - type: archive\n            repository: http://maven/last\n            name: mv1\n            target: /data\n            isForce: true\n          - type: pipieline\n            sourceStage: stage1\n            sourceJob: job1\n            name: zip1\n            target: /data\n            isForce: true\n          - type: variable\n            value: a\n            isForce: true";
+    let p = match yaml::Pipeline::from_str(y_c) {
+        Err(e) => {
+            println!("err :{:?}", e);
+            return;
+        }
+        Ok(t) => {
+            println!("dag :{:?}", t);
+            t
+        }
+    };
+
+    match d.get("version"){
+        Some(v)=>{
+            v.rule
+        },
+        _ => println!("not found"),
+    }
+
 }

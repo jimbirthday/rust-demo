@@ -1,0 +1,114 @@
+version: 1.0
+name: go-test-copy
+displayName:
+triggers:
+  push:
+    branches:
+      - master
+variables:
+  WORLD: world_ymlsd
+stages:
+  - stage: maven@1
+    displayName: 第一个stage
+    name: stage1
+    jobs:
+      - job:
+        displayName: 第一个job1
+        name: job1
+        environments:
+           WORLD: world
+           HELLO: helloaaa
+        commands:
+          - echo ${{HELLO}} &&
+            echo ${{WORLD}}
+          -
+            - echo group1  --- Test1
+            - echo group1  --- Test2
+            - echo group1  --- Test3
+          - group2:
+              - echo group2  --- Test1
+              - echo group2  --- Test2
+              - echo group2  --- Test3
+              - errGroup:
+                  -echo errGroup  --- Test1
+                  -echo errGroup  --- Test2
+          - echo Hello Wolrd 3
+          - sleep 10s
+        artifacts:
+          - name: mv1
+            scope: archive
+            repository: http://maven/last
+            path: /v1.0/java.jar
+          - name: zip1
+            scope: pipieline
+            path: /v.10/a.zip
+          - name: var1
+            scope: variable
+            value: a
+        dependArtifacts:
+          - type: archive
+            repository: http://maven/last
+            name: mv1
+            target: /data
+            isForce: true
+          - type: pipieline
+            sourceStage: stage1
+            sourceJob: job1
+            name: zip1
+            target: /data
+            isForce: true
+          - type: variable
+            value: a
+            isForce: true
+  - stage: maven@1
+    displayName: 第一个stage
+    name: stage1
+    jobs:
+      - job:
+        displayName: 第一个job1
+        name: job1
+        environments:
+           WORLD: world
+           HELLO: helloaaa
+        commands:
+          - echo ${{HELLO}} &&
+            echo ${{WORLD}}
+          -
+            - echo group1  --- Test1
+            - echo group1  --- Test2
+            - echo group1  --- Test3
+          - group2:
+              - echo group2  --- Test1
+              - echo group2  --- Test2
+              - echo group2  --- Test3
+              - errGroup:
+                  -echo errGroup  --- Test1
+                  -echo errGroup  --- Test2
+          - echo Hello Wolrd 3
+          - sleep 10s
+        artifacts:
+          - name: mv1
+            scope: archive
+            repository: http://maven/last
+            path: /v1.0/java.jar
+          - name: zip1
+            scope: pipieline
+            path: /v.10/a.zip
+          - name: var1
+            scope: variable
+            value: a
+        dependArtifacts:
+          - type: archive
+            repository: http://maven/last
+            name: mv1
+            target: /data
+            isForce: true
+          - type: pipieline
+            sourceStage: stage1
+            sourceJob: job1
+            name: zip1
+            target: /data
+            isForce: true
+          - type: variable
+            value: a
+            isForce: true

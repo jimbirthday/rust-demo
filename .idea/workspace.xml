@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="744523fd-634a-4a58-a25c-582e79b3c300" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/src/dag.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/dag.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/model.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/model.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/model.rs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
