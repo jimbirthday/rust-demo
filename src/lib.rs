@@ -74,11 +74,4 @@ fn test_yaml() {
         }
     };
 
-    match d.get("version"){
-        Some(v)=>{
-            v.rule
-        },
-        _ => println!("not found"),
-    }
-
 }

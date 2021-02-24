@@ -74,25 +74,39 @@ pub struct DependArtifact {
     pub value: String,
 }
 
-fn default_string()->String{
+fn default_string() -> String {
     String::from("")
 }
-fn default_vec_string()->Vec<String>{
+fn default_vec_string() -> Vec<String> {
     Vec::new()
 }
-fn default_vec_artifact()->Vec<Artifact>{
+fn default_vec_artifact() -> Vec<Artifact> {
     Vec::new()
 }
-fn default_vec_depend_artifacts()->Vec<DependArtifact>{
+fn default_vec_depend_artifacts() -> Vec<DependArtifact> {
     Vec::new()
 }
-fn default_hashmap_string()->HashMap<String, String>{
+fn default_hashmap_string() -> HashMap<String, String> {
     HashMap::new()
 }
 
 impl Pipeline {
-    pub fn from_str(s: &str) -> Result<Pipeline, serde_yaml::Error> {
-        let v: Pipeline= serde_yaml::from_str(s)?;
+    pub fn from_str(s: &str) -> Result<serde_yaml::Value, serde_yaml::Error> {
+        let p: Pipeline = match serde_yaml::from_str(s) {
+            Err(e) => return Err(e),
+            Ok(t) => {
+                println!("the yaml to pieline suc ");
+                t
+            }
+        };
+
+        let v: serde_yaml::Value = match serde_yaml::from_str(s) {
+            Err(e) => return Err(e),
+            Ok(t) => {
+                println!("the yaml to value suc");
+                t
+            }
+        };
         Ok(v)
     }
 }
