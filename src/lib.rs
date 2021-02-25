@@ -57,7 +57,7 @@ fn test_yaml() {
             return;
         }
         Ok(t) => {
-            println!("dag :{:?}", t);
+            // println!("dag :{:?}", t);
             t
         }
     };
@@ -74,4 +74,37 @@ fn test_yaml() {
         }
     };
 
+    match p {
+        serde_yaml::Value::Mapping(e) => {
+            for (k, v) in e {
+                match d.get(&k) {
+                    Some(detail) => match detail.kind.as_str() {
+                        "enum" => {
+                            println!("enum type: {:?}", v);
+                        }
+                        "string" => {
+                            println!("enum string: {:?}", v);
+                        }
+                        "regexp" => {
+                            println!("regexp type: {:?}", v);
+                        }
+                        "list" => {
+                            println!("list type: {:?}", v);
+                        }
+                        "mixed" => {
+                            println!("mixed type: {:?}", v);
+                        }
+                        _ => {
+                            println!("err : {:?}", v);
+                        }
+                    },
+                    _ => println!("unknown type err : {:?}", k),
+                }
+            }
+        }
+        _ => {
+            println!("yaml pase failed");
+            return;
+        }
+    }
 }

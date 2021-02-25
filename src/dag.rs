@@ -1,6 +1,6 @@
 use serde::{de::Error, Deserialize, Serialize};
 use serde_yaml;
-use std::{collections::HashMap, fmt::Error, io::ErrorKind};
+use std::collections::HashMap;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DAG {
@@ -36,6 +36,7 @@ impl DAG {
         match v {
             serde_yaml::Value::Mapping(v) => {
                 for (key, value) in v {
+                    println!("key  ------ : {:?}", key);
                     match &key {
                         serde_yaml::Value::String(_s) => {
                             let b: Detail = serde_yaml::from_value(value)?;
@@ -46,11 +47,61 @@ impl DAG {
                                 println!("unkown type: {:?}", key);
                             }
                             match b.kind.as_str() {
-                                "enum" => {}
-                                "string" => {}
-                                "regexp" => {}
-                                "list" => {}
-                                "mixed" => {}
+                                "enum" => match r {
+                                    serde_yaml::Value::Sequence(e) => {
+                                        println!("enum type: {:?}", e);
+                                    }
+                                    _ => {
+                                        serde_yaml::Error::custom(format!(
+                                            "{:?} rules is null",
+                                            key
+                                        ));
+                                    }
+                                },
+                                "string" => match r {
+                                    serde_yaml::Value::Mapping(e) => {
+                                        println!("enum string: {:?}", e);
+                                    }
+                                    _ => {
+                                        serde_yaml::Error::custom(format!(
+                                            "{:?} rules is null",
+                                            key
+                                        ));
+                                    }
+                                },
+                                "regexp" => match r {
+                                    serde_yaml::Value::Mapping(e) => {
+                                        println!("regexp type: {:?}", e);
+                                    }
+                                    _ => {
+                                        serde_yaml::Error::custom(format!(
+                                            "{:?} rules is null",
+                                            key
+                                        ));
+                                    }
+                                },
+                                "list" => match r {
+                                    serde_yaml::Value::Mapping(e) => {
+                                        println!("list type: {:?}", e);
+                                    }
+                                    _ => {
+                                        serde_yaml::Error::custom(format!(
+                                            "{:?} rules is null",
+                                            key
+                                        ));
+                                    }
+                                },
+                                "mixed" => match r {
+                                    serde_yaml::Value::Sequence(e) => {
+                                        println!("mixed type: {:?}", e);
+                                    }
+                                    _ => {
+                                        serde_yaml::Error::custom(format!(
+                                            "{:?} rules is null",
+                                            key
+                                        ));
+                                    }
+                                },
                                 _ => {
                                     serde_yaml::Error::custom(format!("unkown type: {:?}", key));
                                     println!("unkown type: {:?}", key);
