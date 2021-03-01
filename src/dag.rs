@@ -52,10 +52,10 @@ impl DAG {
                                         println!("enum type: {:?}", e);
                                     }
                                     _ => {
-                                        serde_yaml::Error::custom(format!(
+                                        return Err(serde_yaml::Error::custom(format!(
                                             "{:?} rules is null",
                                             key
-                                        ));
+                                        )));
                                     }
                                 },
                                 "string" => match r {
@@ -63,10 +63,10 @@ impl DAG {
                                         println!("enum string: {:?}", e);
                                     }
                                     _ => {
-                                        serde_yaml::Error::custom(format!(
+                                        return Err(serde_yaml::Error::custom(format!(
                                             "{:?} rules is null",
                                             key
-                                        ));
+                                        )));
                                     }
                                 },
                                 "regexp" => match r {
@@ -74,10 +74,10 @@ impl DAG {
                                         println!("regexp type: {:?}", e);
                                     }
                                     _ => {
-                                        serde_yaml::Error::custom(format!(
+                                        return Err(serde_yaml::Error::custom(format!(
                                             "{:?} rules is null",
                                             key
-                                        ));
+                                        )));
                                     }
                                 },
                                 "list" => match r {
@@ -85,10 +85,10 @@ impl DAG {
                                         println!("list type: {:?}", e);
                                     }
                                     _ => {
-                                        serde_yaml::Error::custom(format!(
+                                        return Err(serde_yaml::Error::custom(format!(
                                             "{:?} rules is null",
                                             key
-                                        ));
+                                        )));
                                     }
                                 },
                                 "mixed" => match r {
@@ -96,24 +96,32 @@ impl DAG {
                                         println!("mixed type: {:?}", e);
                                     }
                                     _ => {
-                                        serde_yaml::Error::custom(format!(
+                                        return Err(serde_yaml::Error::custom(format!(
                                             "{:?} rules is null",
                                             key
-                                        ));
+                                        )));
                                     }
                                 },
                                 _ => {
-                                    serde_yaml::Error::custom(format!("unkown type: {:?}", key));
                                     println!("unkown type: {:?}", key);
+                                    return Err(serde_yaml::Error::custom(format!(
+                                        "unkown type: {:?}",
+                                        key
+                                    )));
                                 }
                             }
                             res.insert(key, b);
                         }
-                        _ => println!("unkown type: {:?}", key),
+                        _ => {
+                            return Err(serde_yaml::Error::custom(format!(
+                                "unkown type: {:?}",
+                                key
+                            )))
+                        }
                     }
                 }
             }
-            _ => println!("unkown type : {:?}", v),
+            _ => return Err(serde_yaml::Error::custom(format!("unkown type: {:?}", v))),
         }
         Ok(res)
     }
